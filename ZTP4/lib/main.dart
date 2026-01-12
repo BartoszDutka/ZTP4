@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/config/api_config.dart';
+import 'core/theme/app_theme.dart';
+import 'data/repositories/cart_repository.dart';
 import 'data/repositories/product_repository.dart';
+import 'data/services/cart_api_service.dart';
 import 'data/services/product_api_service.dart';
+import 'data/services/product_cache_service.dart';
+import 'presentation/bloc/cart/cart_bloc.dart';
 import 'presentation/bloc/product_list/product_list_bloc.dart';
 import 'presentation/pages/product_list_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Ustawienie stylu status bara
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
+  
   runApp(const MyApp());
 }
 
@@ -16,20 +33,32 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Dependency Injection - tworzenie zależności
-    final apiService = ProductApiService(baseUrl: ApiConfig.baseUrl);
-    final repository = ProductRepository(apiService: apiService);
+    final productApiService = ProductApiService(baseUrl: ApiConfig.baseUrl);
+    final productCacheService = ProductCacheService();
+    final productRepository = ProductRepository(
+      apiService: productApiService,
+      cacheService: productCacheService,
+    );
+    
+    final cartApiService = CartApiService(baseUrl: ApiConfig.cartBaseUrl);
+    final cartRepository = CartRepository(apiService: cartApiService);
 
-    return MaterialApp(
-      title: 'ZTP4 - Produkty',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: BlocProvider(
-        create: (context) => ProductListBloc(repository: repository)
-          ..add(LoadProducts()),
-        child: const ProductListPage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => ProductListBloc(repository: productRepository)
+            ..add(LoadProducts()),
+        ),
+        BlocProvider(
+          create: (context) => CartBloc(repository: cartRepository)
+            ..add(const InitializeCart(userId: 'mobile-user')),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'ZTP4 - Produkty',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const ProductListPage(),
       ),
     );
   }

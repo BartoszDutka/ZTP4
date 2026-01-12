@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ShoppingCart.Domain.Entities;
 using ShoppingCart.Domain.Interfaces;
 
 namespace ShoppingCart.Infrastructure.BackgroundServices

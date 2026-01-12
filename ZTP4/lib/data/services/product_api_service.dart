@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -32,6 +33,8 @@ class ProductApiService {
       return _handleListResponse(response);
     } on SocketException {
       throw NetworkException('Brak połączenia z siecią. Sprawdź połączenie internetowe.');
+    } on TimeoutException {
+      throw NetworkException('Przekroczono limit czasu połączenia.');
     } on http.ClientException {
       throw NetworkException('Błąd połączenia z serwerem.');
     } catch (e) {
@@ -55,6 +58,8 @@ class ProductApiService {
       return _handleSingleResponse(response);
     } on SocketException {
       throw NetworkException('Brak połączenia z siecią. Sprawdź połączenie internetowe.');
+    } on TimeoutException {
+      throw NetworkException('Przekroczono limit czasu połączenia.');
     } on http.ClientException {
       throw NetworkException('Błąd połączenia z serwerem.');
     } catch (e) {

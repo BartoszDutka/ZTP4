@@ -17,11 +17,15 @@ class ProductListLoading extends ProductListState {}
 /// Stan sukcesu - lista produktów załadowana
 class ProductListLoaded extends ProductListState {
   final List<Product> products;
+  final bool isOffline;
 
-  const ProductListLoaded({required this.products});
+  const ProductListLoaded({
+    required this.products,
+    this.isOffline = false,
+  });
 
   @override
-  List<Object?> get props => [products];
+  List<Object?> get props => [products, isOffline];
 }
 
 /// Stan błędu

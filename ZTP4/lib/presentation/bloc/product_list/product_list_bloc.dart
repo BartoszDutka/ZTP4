@@ -37,8 +37,11 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
   /// Pobiera produkty z repozytorium
   Future<void> _fetchProducts(Emitter<ProductListState> emit) async {
     try {
-      final products = await repository.getProducts();
-      emit(ProductListLoaded(products: products));
+      final result = await repository.getProductsWithSource();
+      emit(ProductListLoaded(
+        products: result.products,
+        isOffline: result.isFromCache,
+      ));
     } on NetworkException catch (e) {
       emit(ProductListError(message: e.message));
     } on ServerException catch (e) {
