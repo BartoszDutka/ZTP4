@@ -145,6 +145,28 @@ services:
       - ztp-network
     restart: unless-stopped
 
+  # BFF - Backend For Frontend dla aplikacji mobilnej
+  bff-api:
+    build:
+      context: ./BFF
+      dockerfile: Dockerfile
+    container_name: ztp4-bff-api
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Services__ProductApi=http://ztp1-api:8080
+      - Services__CartApi=http://ztp3-api:8080
+    depends_on:
+      ztp1-api:
+        condition: service_started
+      ztp3-api:
+        condition: service_started
+    networks:
+      - ztp-network
+    restart: unless-stopped
+
 networks:
   ztp-network:
     driver: bridge

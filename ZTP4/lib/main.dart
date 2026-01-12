@@ -5,8 +5,7 @@ import 'core/config/api_config.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/cart_repository.dart';
 import 'data/repositories/product_repository.dart';
-import 'data/services/cart_api_service.dart';
-import 'data/services/product_api_service.dart';
+import 'data/services/bff_api_service.dart';
 import 'data/services/product_cache_service.dart';
 import 'presentation/bloc/cart/cart_bloc.dart';
 import 'presentation/bloc/product_list/product_list_bloc.dart';
@@ -32,16 +31,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dependency Injection - tworzenie zależności
-    final productApiService = ProductApiService(baseUrl: ApiConfig.baseUrl);
+    // Dependency Injection - BFF jako jedyny punkt komunikacji z backendem
+    // Aplikacja NIE zna adresów Lab 1 i Lab 3 - komunikuje się tylko z BFF
+    final bffService = BffApiService(baseUrl: ApiConfig.bffBaseUrl);
     final productCacheService = ProductCacheService();
+    
     final productRepository = ProductRepository(
-      apiService: productApiService,
+      bffService: bffService,
       cacheService: productCacheService,
     );
     
-    final cartApiService = CartApiService(baseUrl: ApiConfig.cartBaseUrl);
-    final cartRepository = CartRepository(apiService: cartApiService);
+    final cartRepository = CartRepository(bffService: bffService);
 
     return MultiBlocProvider(
       providers: [
